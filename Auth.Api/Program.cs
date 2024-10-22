@@ -35,9 +35,6 @@ builder.Services.AddScoped<IUserManager, UserManager>();
 builder.Services.AddScoped<UserMapping>();
 builder.Services.AddSingleton<PasswordPolicyHelper>();
 
-builder.Services.Configure<JwtTokenSettings>(builder.Configuration.GetSection("JwtTokenSettings"));
-builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<JwtTokenSettings>>().Value);
-
 builder.Services.Configure<PasswordPolicySettings>(builder.Configuration.GetSection("PasswordPolicySettings"));
 builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<PasswordPolicySettings>>().Value);
 

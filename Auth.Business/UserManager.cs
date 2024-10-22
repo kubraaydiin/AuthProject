@@ -103,11 +103,6 @@ namespace Auth.Business
             var decodedToken = TokenHelper.ValidateToken(token.Replace("Bearer ", ""));
             var emailAddress = decodedToken.Claims.FirstOrDefault(x => x.Type.Contains("emailaddress"))?.Value;
 
-            if (emailAddress is null)
-            {
-                throw new CustomException("Geçersiz kullanıcı", HttpStatusCode.Unauthorized);
-            }
-
             var user = await _uow.UserRepository.GetFirst(x => x.Email == emailAddress);
 
             if (user is null)

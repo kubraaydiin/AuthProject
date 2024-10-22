@@ -1,10 +1,7 @@
 using Auth.Api.Attributes;
 using Auth.Api.Validators;
 using Auth.Business.Interfaces;
-using Auth.Common.Helper;
 using Auth.Common.Models.Request;
-using Auth.Common.Models.Response;
-using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Auth.Api.Controllers
