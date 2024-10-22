@@ -1,4 +1,5 @@
-﻿using Auth.Common.Helper;
+﻿using Auth.Api.Attributes;
+using Auth.Common.Helper;
 using Auth.Common.Models.Response;
 
 namespace Auth.Api.Middlewares
@@ -6,10 +7,6 @@ namespace Auth.Api.Middlewares
     public class ValidateTokenMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly Dictionary<string, string> tokenRequiredPaths = new()
-        {
-            { "/users/password", "PUT" }
-        };
 
         public ValidateTokenMiddleware(RequestDelegate next)
         {
@@ -18,7 +15,7 @@ namespace Auth.Api.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
-            if (IsTokenRequiredEndpoint(context.Request.Path.Value!, context.Request.Method))
+            if (!HasJwtIgnoreAttribute(context))
             {
                 try
                 {
@@ -45,16 +42,17 @@ namespace Auth.Api.Middlewares
             }
         }
 
-        private static async Task SetUnauthorizedError(HttpContext context, string responseMessage)
+        private async Task SetUnauthorizedError(HttpContext context, string responseMessage)
         {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = 401;
             await context.Response.WriteAsJsonAsync(new BaseResponseModel().ToErrorResponse(responseMessage));
         }
 
-        private bool IsTokenRequiredEndpoint(string endpoint, string httpType)
+        private bool HasJwtIgnoreAttribute(HttpContext context)
         {
-            return tokenRequiredPaths.Any(x => x.Key == endpoint && x.Value == httpType);
+            var endpoint = context.GetEndpoint();
+            return endpoint?.Metadata.GetMetadata<JwtIgnoreAttribute>() != null;
         }
     }
 }

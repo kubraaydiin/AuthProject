@@ -41,6 +41,8 @@ builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<J
 builder.Services.Configure<PasswordPolicySettings>(builder.Configuration.GetSection("PasswordPolicySettings"));
 builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<PasswordPolicySettings>>().Value);
 
+builder.Services.AddTransient<GenericValidator>();
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters

@@ -1,3 +1,5 @@
+using Auth.Api.Attributes;
+using Auth.Api.Validators;
 using Auth.Business.Interfaces;
 using Auth.Common.Helper;
 using Auth.Common.Models.Request;
@@ -8,29 +10,23 @@ using Microsoft.AspNetCore.Mvc;
 namespace Auth.Api.Controllers
 {
     [ApiController]
+    [JwtIgnore]
     [Route("[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly IUserManager _userManager;
-        private readonly IValidator<RegisterRequestModel> _registerRequestModelValidator;
-        private readonly IValidator<LoginRequestModel> _loginRequestModelValidator;
+        private readonly GenericValidator _genericValidator;
 
-        public AuthController(IUserManager userManager, IValidator<RegisterRequestModel> registerRequestModelValidator, IValidator<LoginRequestModel> loginRequestModelValidator)
+        public AuthController(IUserManager userManager, GenericValidator genericValidator)
         {
             _userManager = userManager;
-            _registerRequestModelValidator = registerRequestModelValidator;
-            _loginRequestModelValidator = loginRequestModelValidator;
+            _genericValidator = genericValidator;
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestModel loginRequestModel)
         {
-            var result = _loginRequestModelValidator.Validate(loginRequestModel);
-
-            if (!result.IsValid)
-            {
-                return BadRequest(new BaseResponseModel().ToErrorResponse(result.Errors[0].ErrorMessage));
-            }
+            _genericValidator.Validate<LoginRequestModelValidator, LoginRequestModel>(loginRequestModel);
 
             var response = await _userManager.GetUser(loginRequestModel);
 
@@ -45,12 +41,7 @@ namespace Auth.Api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequestModel registerRequestModel)
         {
-            var result = _registerRequestModelValidator.Validate(registerRequestModel);
-
-            if (!result.IsValid)
-            {
-                return BadRequest(new BaseResponseModel().ToErrorResponse(result.Errors[0].ErrorMessage));
-            }
+            _genericValidator.Validate<RegisterRequestModelValidator, RegisterRequestModel>(registerRequestModel);
 
             var response = await _userManager.CreateUser(registerRequestModel);
 
